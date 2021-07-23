@@ -1,4 +1,4 @@
-package com.hal.demo.controller;
+package com.swagger.demo.controller;
 
 import java.net.URI;
 import java.util.List;
@@ -18,11 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.hal.demo.dto.Customer;
-import com.hal.demo.generic.response.ResponseEntityBuilder;
-import com.hal.demo.generic.response.RestApiResponse;
-import com.hal.demo.service.CustomerService;
-import com.hal.demo.validation.CustomerRequestValidator;
+import com.swagger.demo.dto.Customer;
+import com.swagger.demo.generic.response.ResponseEntityBuilder;
+import com.swagger.demo.generic.response.RestApiResponse;
+import com.swagger.demo.service.CustomerService;
+import com.swagger.demo.validation.CustomerRequestValidator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,7 +63,6 @@ public class CusotmerController {
 	@PostMapping(path = "/create")
 	public ResponseEntity<RestApiResponse> create(@RequestBody Customer cus, BindingResult result) {
 		try {
-			log.info("inside create for {}",cus);
 			requestValidator.validate(cus, result);
 			Customer savedCustomer = service.saveCustomer(cus);
 			if (Objects.nonNull(savedCustomer)) {
@@ -73,7 +72,7 @@ public class CusotmerController {
 			}
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		} catch (Exception ex) {
-			log.error("Exception ::" + ex);
+			log.error("Exception ::"+ex);
 			ResponseStatusException res = (ResponseStatusException) ex;
 			return ResponseEntityBuilder.getBuilder(res.getStatus()).errorResponse(res.getStatus().value(),
 					res.getReason());
