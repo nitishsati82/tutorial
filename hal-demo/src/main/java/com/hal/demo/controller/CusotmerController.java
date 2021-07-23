@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -49,21 +53,28 @@ public class CusotmerController {
 	}
 
 	@GetMapping(path = "/customer/{id}")
-	public ResponseEntity<RestApiResponse> getCustomers(@PathVariable int id) {
+	public EntityModel<ResponseEntity<RestApiResponse>> getCustomers(@PathVariable int id) {
+		EntityModel<ResponseEntity<RestApiResponse>> model;
 		Customer customer = service.findById(id);
 		if (Objects.nonNull(customer)) {
-			return ResponseEntityBuilder.getBuilder(HttpStatus.OK).successResponse(HttpStatus.OK.getReasonPhrase(),
-					customer);
+			model = EntityModel.of(ResponseEntityBuilder.getBuilder(HttpStatus.OK)
+					.successResponse(HttpStatus.OK.getReasonPhrase(), customer));
+		
 		} else {
-			return ResponseEntityBuilder.getBuilder(HttpStatus.NOT_FOUND)
-					.errorResponse(HttpStatus.NOT_FOUND.getReasonPhrase());
+			model = EntityModel.of(ResponseEntityBuilder.getBuilder(HttpStatus.NOT_FOUND)
+					.errorResponse(HttpStatus.NOT_FOUND.getReasonPhrase()));
+
 		}
+		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).getCustomers());
+		model.add(link.withRel("all-customers"));
+		return model;
 	}
+	
 
 	@PostMapping(path = "/create")
 	public ResponseEntity<RestApiResponse> create(@RequestBody Customer cus, BindingResult result) {
 		try {
-			log.info("inside create for {}",cus);
+			log.info("inside create for {}", cus);
 			requestValidator.validate(cus, result);
 			Customer savedCustomer = service.saveCustomer(cus);
 			if (Objects.nonNull(savedCustomer)) {
